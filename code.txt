@@ -1,0 +1,97 @@
+from scipy import optimize
+import math 
+import random
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+
+def fitness(x):
+    """ fitness pour une liste en entréé """
+     return sum([(matriceAafficher[i][j]-int(i==j))**2 for i in range(6) for j in range(6)])
+
+    
+
+def Gmutation(pm,x):
+    """ grande mutation """
+    for i in range(int(pm*len(x))):
+        a=random.random()
+        x[i]=(a,f(a))
+    return [(k,v) for v,k in sorted( [(v,k) for k,v in dict(x).items()])]
+    
+def mutation(pm,em,x):
+    """ petite mutation """
+    for i in range(int(pm*len(x))):
+        a=x[i][0]+random.random()*em
+        x[i]=(a,f(a))
+    return [(k,v) for v,k in sorted( [(v,k) for k,v in dict(x).items()])]
+
+def crossover(pm,x):
+    """ crossover """
+    for i in range(int(pm*len(x))):
+        a=x[i][0]+x[len(x)-1][0]
+        x[i]=(a,f(a))
+    return [(k,v) for v,k in sorted( [(v,k) for k,v in dict(x).items()])]
+
+        
+#Calcul du max de la fonction par lecture graphique, enlever les signes de commentaires """ """ pour excuter le code
+
+
+"""
+x = [-1+0.00001*a for a in range(200000)]
+
+plt.plot(x, fitness(x))
+plt.ylabel('fitness ')
+plt.grid(True)
+plt.show()
+ 
+"""
+
+
+#corps du programme
+
+#initialisation
+def main(Npop,pM,pm,ps,prec,em):
+
+    pop=[]
+    Fpop=[]
+    for i in range (Npop):
+        y=random.random()
+        if y<0.5:
+            x=random.random()!
+        else:
+            x=-random.random()
+        pop+=[x]
+        
+    #calcul de fpop et tri ascendant
+        
+    Fpop=fitness(pop)
+    toSort={}
+    toSort=dict(zip(pop,Fpop))
+    sortedList = [(k,v) for v,k in sorted( [(v,k) for k,v in toSort.items()])]
+    temps=[]
+    for j in range(100000):
+        c=0
+        while -sortedList[Npop-1][1] > prec:
+            sortedList=Gmutation(pM,sortedList)
+            sortedList=mutation(pm,em,sortedList)   
+            sortedList=crossover(ps,sortedList)
+            c+=1
+        temps+=[c]
+    c=sum(temps)/float(len(temps))           
+    return [c,sortedList[Npop-1][0]]
+
+#execution
+#main(Npop,pM,pm,ps,prec,em)
+M=100
+x=[10**(-8*i/M) for i in range(1,M)]
+y=[main(10000,0.33,0.33,0.33,i,0.01)[0] for i in x]
+plt.plot(x, y,'ro')
+plt.ylabel('temps moyen en échelle log')
+plt.grid(True)
+plt.yscale('log')
+plt.xscale('log')
+plt.title('Npop,pM,pm,ps,prec,em=10000,0.33,0.33,0.33,10^-8,0.01')
+plt.show()
+
+       
